@@ -1,0 +1,56 @@
+from collections import deque
+
+# Define the possible actions for the vacuum cleaner
+def vacuum_cleaner_problem():
+    # Define the initial state
+    initial_state = ('dirty', 'dirty', 0)  # Both rooms are dirty, vacuum starts in Room 1
+    goal_state = ('clean', 'clean', 0)  # Both rooms must be clean
+
+    # BFS queue to explore the states
+    queue = deque([(initial_state, [])])  # (state, path_to_this_state)
+    visited = set([initial_state])  # Set of visited states
+
+    # BFS to find the solution
+    while queue:
+        current_state, path = queue.popleft()
+
+        # If we reach the goal state, return the path to the solution
+        if current_state == goal_state:
+            return path
+
+        room1, room2, vacuum_position = current_state
+        next_states = []
+
+        # Perform the possible actions
+
+        # Action 1: Clean the current room
+        if vacuum_position == 0 and room1 == 'dirty':  # Vacuum in Room 1 and Room 1 is dirty
+            next_states.append(('clean', room2, vacuum_position))  # Clean Room 1
+        if vacuum_position == 1 and room2 == 'dirty':  # Vacuum in Room 2 and Room 2 is dirty
+            next_states.append((room1, 'clean', vacuum_position))  # Clean Room 2
+
+        # Action 2: Move to the other room
+        if vacuum_position == 0:  # Vacuum is in Room 1, move to Room 2
+            next_states.append((room1, room2, 1))
+        if vacuum_position == 1:  # Vacuum is in Room 2, move to Room 1
+            next_states.append((room1, room2, 0))
+
+        # Explore the valid next states
+        for next_state in next_states:
+            if next_state not in visited:
+                visited.add(next_state)
+                queue.append((next_state, path + [next_state]))
+
+    return None  # No solution found
+
+# Running the function to solve the Vacuum Cleaner problem
+solution = vacuum_cleaner_problem()
+
+# Display the solution path
+if solution:
+    print("Solution path to clean the environment:")
+    for state in solution:
+        room1, room2, vacuum_position = state
+        print(f"Room 1: {room1}, Room 2: {room2}, Vacuum in {'Room 1' if vacuum_position == 0 else 'Room 2'}")
+else:
+    print("No solution found.")
