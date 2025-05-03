@@ -1,0 +1,60 @@
+from collections import deque
+
+# Define capacities of jugs and the target
+JUG1_CAPACITY = 4
+JUG2_CAPACITY = 3
+TARGET = 2
+
+# State is represented as a tuple (jug1, jug2)
+def is_goal(state):
+    return state[0] == TARGET or state[1] == TARGET
+
+def get_successors(state):
+    jug1, jug2 = state
+    successors = set()
+
+    # Fill Jug1
+    successors.add((JUG1_CAPACITY, jug2))
+    # Fill Jug2
+    successors.add((jug1, JUG2_CAPACITY))
+    # Empty Jug1
+    successors.add((0, jug2))
+    # Empty Jug2
+    successors.add((jug1, 0))
+    # Pour Jug1 -> Jug2
+    transfer = min(jug1, JUG2_CAPACITY - jug2)
+    successors.add((jug1 - transfer, jug2 + transfer))
+    # Pour Jug2 -> Jug1
+    transfer = min(jug2, JUG1_CAPACITY - jug1)
+    successors.add((jug1 + transfer, jug2 - transfer))
+
+    return successors
+
+def bfs():
+    start = (0, 0)
+    visited = set()
+    queue = deque()
+    queue.append((start, [start]))
+
+    while queue:
+        (current_state, path) = queue.popleft()
+        if is_goal(current_state):
+            return path
+
+        for successor in get_successors(current_state):
+            if successor not in visited:
+                visited.add(successor)
+                queue.append((successor, path + [successor]))
+    
+    return None
+
+# Run the BFS
+solution = bfs()
+
+# Display the steps
+if solution:
+    print("Steps to reach the goal:")
+    for step in solution:
+        print(step)
+else:
+    print("No solution found.")
