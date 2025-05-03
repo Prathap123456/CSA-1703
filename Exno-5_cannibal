@@ -1,0 +1,68 @@
+# Function to check if a state is valid
+def is_valid(state):
+    m_left, c_left, m_right, c_right, boat = state
+    
+    # If there are missionaries and cannibals on either side, missionaries must not be outnumbered
+    if m_left < c_left and m_left > 0: return False  # Missionaries on left side are outnumbered by cannibals
+    if m_right < c_right and m_right > 0: return False  # Missionaries on right side are outnumbered by cannibals
+    
+    return True
+
+# Function to perform BFS and solve the puzzle
+def bfs():
+    # Initial state: 3 missionaries, 3 cannibals, boat on the left
+    initial_state = (3, 3, 0, 0, 1)  # (M_left, C_left, M_right, C_right, boat_position)
+    goal_state = (0, 0, 3, 3, 0)  # Goal: all on the right side, boat on the right side
+    
+    # BFS queue
+    queue = deque([(initial_state, [])])  # (state, path)
+    visited = set([initial_state])
+    
+    while queue:
+        current_state, path = queue.popleft()
+        
+        # Check if we've reached the goal state
+        if current_state == goal_state:
+            return path
+        
+        # Generate possible moves
+        m_left, c_left, m_right, c_right, boat = current_state
+        next_states = []
+        
+        # Boat on left side, moving missionaries or cannibals to the right side
+        if boat == 1:
+            if m_left >= 2: next_states.append((m_left-2, c_left, m_right+2, c_right, 0))  # 2 missionaries cross
+            if m_left >= 1: next_states.append((m_left-1, c_left, m_right+1, c_right, 0))  # 1 missionary crosses
+            if c_left >= 2: next_states.append((m_left, c_left-2, m_right, c_right+2, 0))  # 2 cannibals cross
+            if c_left >= 1: next_states.append((m_left, c_left-1, m_right, c_right+1, 0))  # 1 cannibal crosses
+            if m_left >= 1 and c_left >= 1: next_states.append((m_left-1, c_left-1, m_right+1, c_right+1, 0))  # 1 missionary, 1 cannibal crosses
+        
+        # Boat on right side, moving missionaries or cannibals to the left side
+        else:
+            if m_right >= 2: next_states.append((m_left+2, c_left, m_right-2, c_right, 1))  # 2 missionaries come back
+            if m_right >= 1: next_states.append((m_left+1, c_left, m_right-1, c_right, 1))  # 1 missionary comes back
+            if c_right >= 2: next_states.append((m_left, c_left+2, m_right, c_right-2, 1))  # 2 cannibals come back
+            if c_right >= 1: next_states.append((m_left, c_left+1, m_right, c_right-1, 1))  # 1 cannibal comes back
+            if m_right >= 1 and c_right >= 1: next_states.append((m_left+1, c_left+1, m_right-1, c_right-1, 1))  # 1 missionary, 1 cannibal come back
+
+        # Explore the valid next states
+        for next_state in next_states:
+            if next_state not in visited and is_valid(next_state):
+                visited.add(next_state)
+                queue.append((next_state, path + [next_state]))
+    
+    return None  # No solution found
+
+# Running the BFS function to solve the problem
+solution = bfs()
+
+# Display the solution path
+if solution:
+    print("Solution found:")
+    for state in solution:
+        m_left, c_left, m_right, c_right, boat = state
+        print(f"Missionaries on left: {m_left}, Cannibals on left: {c_left}, "
+              f"Missionaries on right: {m_right}, Cannibals on right: {c_right}, "
+              f"Boat on {'left' if boat == 1 else 'right'}")
+else:
+    print("No solution found.")
