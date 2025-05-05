@@ -1,0 +1,80 @@
+# Map Coloring CSP Solver for Australian States
+from typing import Dict, List
+
+# Australian regions
+regions = ['WA', 'NT', 'SA', 'Q', 'NSW', 'V', 'T']
+
+# Adjacency relationships (neighbors)
+neighbors = {
+    'WA': ['NT', 'SA'],
+    'NT': ['WA', 'SA', 'Q'],
+    'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+    'Q': ['NT', 'SA', 'NSW'],
+    'NSW': ['Q', 'SA', 'V'],
+    'V': ['SA', 'NSW'],
+    'T': []
+}
+
+# Colors (domains)
+colors = ['Red', 'Green', 'Blue']
+
+# Initial domain for all regions
+domains = {region: colors[:] for region in regions}
+
+
+def is_consistent(region: str, color: str, assignment: Dict[str, str]) -> bool:
+    """Check if assigning 'color' to 'region' is consistent with neighboring constraints."""
+    for neighbor in neighbors[region]:
+        if neighbor in assignment and assignment[neighbor] == color:
+            return False
+    return True
+
+
+def select_unassigned_variable(assignment: Dict[str, str], domains: Dict[str, List[str]]) -> str:
+    """Select the next unassigned variable (region) using Minimum Remaining Values (MRV)."""
+    unassigned = [v for v in regions if v not in assignment]
+    return min(unassigned, key=lambda var: len(domains[var]))
+
+
+def forward_checking(domains: Dict[str, List[str]], region: str, color: str) -> Dict[str, List[str]]:
+    """Perform forward checking by updating domains after assigning a color."""
+    local_domains = {var: list(vals) for var, vals in domains.items()}
+    for neighbor in neighbors[region]:
+        if color in local_domains[neighbor]:
+            local_domains[neighbor].remove(color)
+    return local_domains
+
+
+def backtrack(assignment: Dict[str, str], domains: Dict[str, List[str]]) -> Dict[str, str] or None:
+    """Backtracking search with forward checking."""
+    if len(assignment) == len(regions):
+        return assignment
+
+    region = select_unassigned_variable(assignment, domains)
+    for color in domains[region]:
+        if is_consistent(region, color, assignment):
+            assignment[region] = color
+            updated_domains = forward_checking(domains, region, color)
+            
+            # Check for empty domain (failure)
+            if all(updated_domains[var] for var in regions if var not in assignment):
+                result = backtrack(assignment, updated_domains)
+                if result:
+                    return result
+
+            # Undo assignment
+            del assignment[region]
+    
+    return None
+
+
+# Solve the CSP
+solution = backtrack({}, domains)
+
+# Output the solution
+if solution:
+    print("Solution Found:")
+    for region in regions:
+        print(f"{region}: {solution[region]}")
+else:
+    print("No solution found.")
