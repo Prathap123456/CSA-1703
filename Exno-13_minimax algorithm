@@ -1,0 +1,39 @@
+def tic_tac_toe_minimax():
+    board = [str(i+1) for i in range(9)]
+    print("You are 'X'. AI is 'O'.")
+    print_board(board)
+
+    while True:
+        # Human turn
+        move = input("Enter your move (1-9): ")
+        if not move.isdigit() or int(move) not in range(1, 10):
+            print("Invalid move.")
+            continue
+        move = int(move) - 1
+        if board[move] in ['X', 'O']:
+            print("Spot already taken.")
+            continue
+        board[move] = 'X'
+        print_board(board)
+        if check_winner(board, 'X'):
+            print("🎉 You win!")
+            break
+        if is_draw(board):
+            print("It's a draw!")
+            break
+
+        # AI turn
+        print("AI is making a move...")
+        ai_move = best_move(board)
+        board[ai_move] = 'O'
+        print_board(board)
+        if check_winner(board, 'O'):
+            print("😢 AI wins!")
+            break
+        if is_draw(board):
+            print("It's a draw!")
+            break
+
+# Run the game
+if __name__ == "__main__":
+    tic_tac_toe_minimax()
