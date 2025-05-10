@@ -1,0 +1,18 @@
+% disease(Name).
+disease(diabetes).
+disease(hypertension).
+disease(obesity).
+disease(anemia).
+disease(gout).
+
+% diet_for(Disease, Diet).
+diet_for(diabetes, 'Low sugar, high fiber, whole grains, leafy greens').
+diet_for(hypertension, 'Low sodium, fruits, vegetables, lean proteins').
+diet_for(obesity, 'Low calorie, high protein, complex carbs, exercise').
+diet_for(anemia, 'Iron-rich foods like spinach, red meat, legumes').
+diet_for(gout, 'Low purine, avoid red meat, organ meat, and alcohol').
+
+% suggestion(Disease, Diet) rule
+suggestion(Disease, Diet) :-
+    disease(Disease),
+    diet_for(Disease, Diet).
