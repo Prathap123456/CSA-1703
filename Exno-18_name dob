@@ -1,0 +1,6 @@
+% Facts: person(Name, DOB).
+
+person(john_doe, date(1990, 5, 15)).
+person(jane_smith, date(1985, 12, 3)).
+person(alex_jones, date(2000, 7, 21)).
+person(emily_clark, date(1995, 10, 9)).
