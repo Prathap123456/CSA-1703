@@ -1,0 +1,42 @@
+% Define possible actions and states.
+% state(MonkeyPosition, MonkeyStatus, BoxPosition, HasBanana)
+
+% Initial state: monkey and box at door, monkey on floor, no banana
+initial(state(at(door), on_floor, at(door), has_not)).
+
+% Goal state: monkey has the banana
+goal(state(_, _, _, has)).
+
+% Actions
+
+% Monkey walks from one place to another
+move(state(at(X), on_floor, BoxPos, has_not), walk(X, Y), state(at(Y), on_floor, BoxPos, has_not)).
+
+% Monkey pushes the box from one place to another
+move(state(at(X), on_floor, at(X), has_not), push(X, Y), state(at(Y), on_floor, at(Y), has_not)).
+
+% Monkey climbs on the box
+move(state(Pos, on_floor, Pos, has_not), climb, state(Pos, on_box, Pos, has_not)).
+
+% Monkey grasps banana (only if on box and under banana)
+move(state(at(middle), on_box, at(middle), has_not), grasp, state(at(middle), on_box, at(middle), has)).
+
+% Planning: sequence of actions from initial to goal
+plan(State, [], State).
+plan(State1, [Action | Rest], State3) :-
+    move(State1, Action, State2),
+    plan(State2, Rest, State3).
+
+% Solve the problem
+solve :-
+    initial(InitialState),
+    goal(GoalState),
+    plan(InitialState, Plan, GoalState),
+    write('Plan to get the banana: '), nl,
+    print_plan(Plan).
+
+% Print plan
+print_plan([]).
+print_plan([Action | Rest]) :-
+    write('- '), write(Action), nl,
+    print_plan(Rest).
