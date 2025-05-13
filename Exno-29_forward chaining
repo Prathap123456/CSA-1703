@@ -1,0 +1,73 @@
+% --------------------------
+% Facts (Initial Knowledge)
+% --------------------------
+
+:- dynamic fact/1.
+
+fact(sun_is_shining).
+fact(weather_is_warm).
+
+% --------------------------
+% Rules (If-Then Inference)
+% --------------------------
+
+% rule(Conclusion, [Conditions])
+rule(go_outside, [sun_is_shining, weather_is_warm]).
+rule(wear_sunglasses, [sun_is_shining]).
+rule(drink_cold_beverage, [weather_is_warm]).
+rule(happy, [go_outside, drink_cold_beverage]).
+
+% --------------------------
+% Forward Chaining Engine
+% --------------------------
+
+% Check if all conditions are currently facts
+all_facts([]).
+all_facts([H|T]) :-
+    fact(H),
+    all_facts(T).
+
+% Try to infer new facts based on rules
+infer :-
+    rule(NewFact, Conditions),
+    \+ fact(NewFact),           % NewFact is not already known
+    all_facts(Conditions),      % All conditions satisfied
+    assertz(fact(NewFact)),     % Add NewFact to the known base
+    format('Inferred: ~w~n', [NewFact]),
+    infer.                      % Repeat for other rules
+
+infer.  % Base case: do nothing when no more facts can be inferred
+
+% Entry point to start forward chaining
+forward_chaining :-
+    infer,
+    format('Forward chaining complete.~n').
+
+% --------------------------
+% Queries
+% --------------------------
+
+% Check if a fact is known or can be inferred
+can_conclude(Fact) :-
+    fact(Fact), !.               % Fact is already known
+can_conclude(Fact) :-
+    forward_chaining,           % Try to infer new facts
+    fact(Fact).                 % Check again after inference
+
+% List all known facts
+list_all_facts :-
+    forward_chaining,
+    format('All known facts:~n'),
+    fact(F),
+    format('- ~w~n', [F]),
+    fail.  % Force backtracking to list all
+list_all_facts.
+
+% --------------------------
+% Utility: Reset Knowledge Base
+% --------------------------
+reset_knowledge :-
+    retractall(fact(_)),
+    assertz(fact(sun_is_shining)),
+    assertz(fact(weather_is_warm)),
+    format('Knowledge base reset.~n').
