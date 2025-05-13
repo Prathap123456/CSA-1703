@@ -1,0 +1,57 @@
+% --------------------------
+% Facts (Initial Knowledge)
+% --------------------------
+
+fact(sun_is_shining).
+fact(weather_is_warm).
+
+% --------------------------
+% Rules (If-Then Inference)
+% --------------------------
+
+% rule(Conclusion, [Conditions])
+rule(go_outside, [sun_is_shining, weather_is_warm]).
+rule(wear_sunglasses, [sun_is_shining]).
+rule(drink_cold_beverage, [weather_is_warm]).
+rule(happy, [go_outside, drink_cold_beverage]).
+
+% --------------------------
+% Backward Chaining Engine
+% --------------------------
+
+% The main backward chaining predicate
+can_conclude(Fact) :-
+    fact(Fact),                     % Fact is directly known
+    format('Known fact: ~w~n', [Fact]), 
+    !.
+
+can_conclude(Fact) :-
+    rule(Fact, Conditions),         % A rule concludes the Fact
+    prove_all(Conditions),          % Try to prove all conditions
+    format('Concluded by rule: ~w :- ~w~n', [Fact, Conditions]), 
+    !.
+
+% Try to prove all facts in a list
+prove_all([]).
+prove_all([H|T]) :-
+    can_conclude(H),               % Prove each required fact recursively
+    prove_all(T).
+
+% --------------------------
+% Query Helper
+% --------------------------
+
+% List all known facts
+list_known_facts :-
+    format('Known facts:~n'),
+    fact(F),
+    format('- ~w~n', [F]),
+    fail.
+list_known_facts.
+
+% --------------------------
+% Sample Usage
+% --------------------------
+% ?- can_conclude(happy).
+% ?- can_conclude(wear_sunglasses).
+% ?- list_known_facts.
