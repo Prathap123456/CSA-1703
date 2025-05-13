@@ -1,0 +1,14 @@
+% -------------------------------
+% Check if Pattern matches List
+% -------------------------------
+
+% Empty pattern always matches
+pattern_match([], _).
+
+% Pattern matches head of List + rest
+pattern_match([P|PT], [P|LT]) :-
+    pattern_match(PT, LT).
+
+% Skip one element in List and try again
+pattern_match(Pattern, [_|LT]) :-
+    pattern_match(Pattern, LT).
