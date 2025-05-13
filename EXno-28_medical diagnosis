@@ -1,0 +1,54 @@
+% --- SYMPTOMS DATABASE (you can assert these dynamically or define for a patient) ---
+% To simulate a patient, assert symptoms using: assert(symptom(fever)).
+% Or use dynamic input in a UI.
+
+:- dynamic symptom/1.
+
+% --- DISEASE DIAGNOSIS RULES ---
+
+disease(flu) :-
+    symptom(fever),
+    symptom(cough),
+    symptom(sore_throat),
+    symptom(body_ache).
+
+disease(common_cold) :-
+    symptom(cough),
+    symptom(sneezing),
+    symptom(runny_nose).
+
+disease(malaria) :-
+    symptom(fever),
+    symptom(chills),
+    symptom(sweating),
+    symptom(headache).
+
+disease(covid19) :-
+    symptom(fever),
+    symptom(cough),
+    symptom(tiredness),
+    symptom(loss_of_taste_or_smell).
+
+disease(dengue) :-
+    symptom(fever),
+    symptom(headache),
+    symptom(joint_pain),
+    symptom(rash).
+
+% --- DIAGNOSIS PREDICATE ---
+diagnose(Disease) :-
+    disease(Disease).
+
+% --- UTILITIES ---
+
+% Run diagnosis and list all possible diseases
+run_diagnosis :-
+    findall(D, diagnose(D), Diseases),
+    ( Diseases \= [] ->
+        format('Possible diagnosis: ~w~n', [Diseases])
+    ;   write('No matching disease found based on current symptoms.'), nl
+    ).
+
+% Clear symptoms between runs
+clear_symptoms :-
+    retractall(symptom(_)).
