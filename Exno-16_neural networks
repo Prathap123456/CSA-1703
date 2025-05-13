@@ -1,0 +1,40 @@
+# Import required libraries
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+# Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target.reshape(-1, 1)  # Make y a column vector
+
+# One-hot encode the target labels
+encoder = OneHotEncoder(sparse_output=False)
+y_encoded = encoder.fit_transform(y)
+
+# Normalize feature data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split dataset into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_encoded, test_size=0.3, random_state=42)
+
+# Build a Feedforward Neural Network
+model = Sequential()
+model.add(Dense(10, input_shape=(4,), activation='relu'))  # Input layer + 1st hidden layer
+model.add(Dense(8, activation='relu'))                      # 2nd hidden layer
+model.add(Dense(3, activation='softmax'))                   # Output layer (3 classes)
+
+# Compile the model
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=50, batch_size=5, verbose=1)
+
+# Evaluate the model
+loss, accuracy = model.evaluate(X_test, y_test)
+print(f"\nTest Accuracy: {accuracy * 100:.2f}%")
